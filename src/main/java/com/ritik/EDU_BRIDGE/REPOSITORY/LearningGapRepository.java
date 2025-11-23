@@ -6,8 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface LearningGapRepository extends JpaRepository<LearningGap,Long> {
-    List<LearningGap> findByStudentIs(Long studentId);
+public interface LearningGapRepository extends JpaRepository<LearningGap, Long> {
+    List<LearningGap> findByStudentId(Long studentId);
     List<LearningGap> findByTopicId(Long topicId);
-
 }

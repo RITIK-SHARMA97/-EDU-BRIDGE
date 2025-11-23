@@ -3,56 +3,62 @@ package com.ritik.EDU_BRIDGE.UTIL;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import javax.crypto.SecretKey;
 
 @Component
 public class JWTUtil {
 
-    private String secret = "secret_key"; // For production, use environment variable
+    private final String secret = "secret_key_secret_key_secret_key_256bits";
+    private final SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
 
-    private long jwtExpirationInMs = 1000 * 60 * 60; // 1 hour
+    private final long jwtExpirationInMs = 60 * 60 * 1000; // 1 hour
 
-    // Generate token for a username/email
+    // Generate JWT
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // Extract username/email from token
+    // Extract username
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    // Validate token against username
+    // Validate token
     public boolean validateToken(String token, String username) {
-        String tokenUsername = extractUsername(token);
-        return (tokenUsername.equals(username) && !isTokenExpired(token));
+        return username.equals(extractUsername(token)) && !isTokenExpired(token);
     }
 
-    // Check if token is expired
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    // Extract expiration date
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    // Generic method to extract any claim
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-        return claimsResolver.apply(claims);
+    // Generic claim extractor
+    private <T> T extractClaim(String token, Function<Claims, T> resolver) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return resolver.apply(claims);
     }
 }

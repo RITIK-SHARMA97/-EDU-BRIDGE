@@ -1,6 +1,8 @@
 package com.ritik.EDU_BRIDGE.CONTROLLER;
 
 import com.ritik.EDU_BRIDGE.SERVICE.AuthService;
+import com.ritik.EDU_BRIDGE.dtos.auth.AuthResponse;
+import com.ritik.EDU_BRIDGE.dtos.auth.LoginRequest;
 import com.ritik.EDU_BRIDGE.dtos.auth.RegisterRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,5 +22,11 @@ public class AuthController {
         authService.register(request);
         return
                 ResponseEntity.ok("User registered successfully");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request){
+        String token =authService.login(request);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 }

@@ -10,6 +10,6 @@ public class LearningGapResponse {
     private Long studentId;
     private String studentName;
     private String topicName;
-    private Float gapScore;
+    private Float gapScore;            // ✔ FIXED
     private String recommendedLesson;
 }
